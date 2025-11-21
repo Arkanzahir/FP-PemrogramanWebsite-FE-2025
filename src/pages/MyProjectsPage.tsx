@@ -1,10 +1,18 @@
 import { useState } from "react";
+import { User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/ui/typography";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from "../assets/images/logo.svg";
 import avatarImg from "../assets/images/avatar.png";
 import iconExplore from "../assets/images/icon-explore.svg";
@@ -17,6 +25,7 @@ import iconEdit from "../assets/images/icon-edit.svg";
 import iconPublish from "../assets/images/icon-eye.svg";
 import iconUnpublish from "../assets/images/icon-eye-off.svg";
 import iconDelete from "../assets/images/icon-trash.svg";
+import iconLogout from "../assets/images/icon-logout.svg";
 
 type Project = {
   id: number;
@@ -50,6 +59,43 @@ export default function MyProjectsPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [projects, _setProjects] = useState<Project[]>(MOCK_PROJECTS);
 
+  const ProfileDropdown = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="flex items-center gap-3 cursor-pointer">
+          <Avatar className="w-9 h-9">
+            <AvatarImage src={avatarImg} alt="User Avatar" />
+            <AvatarFallback>ZH</AvatarFallback>
+          </Avatar>
+          <span className="text-xs font-medium text-slate-900">zzzdn.hadi</span>
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64">
+        <div className="flex flex-col py-2 px-2 border-b">
+          <p className="font-semibold text-sm mb-1">zzzdn.hadi</p>
+          <p className="text-xs text-muted-foreground">zzzdn.hadi@gmail.com</p>
+        </div>
+        <DropdownMenuItem className="cursor-pointer py-2.5" asChild>
+          <a href="/profile" className="flex items-center">
+            <User className="w-4 h-4 mr-2" />
+            Profile
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer py-2.5" asChild>
+          <a href="/my-projects" className="flex items-center">
+            <img src={iconMyProjects} alt="" className="w-4 h-4 mr-2" />
+            My Projects
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer py-2.5 text-red-600 focus:text-red-600">
+          <img src={iconLogout} alt="" className="w-4 h-4 mr-2" />
+          Logout
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   const Navbar = () => (
     <nav className="bg-white border-b sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-20">
@@ -58,7 +104,7 @@ export default function MyProjectsPage() {
         </a>
         <div className="hidden md:flex items-center gap-2">
           <Button variant="ghost" asChild>
-            <a href="/explore" className="flex items-center gap-2">
+            <a href="/" className="flex items-center gap-2">
               <img src={iconExplore} alt="" className="w-5 h-5" />
               <span>Explore</span>
             </a>
@@ -70,13 +116,7 @@ export default function MyProjectsPage() {
             </a>
           </Button>
         </div>
-        <div className="flex items-center gap-3">
-          <Avatar className="w-9 h-9">
-            <AvatarImage src={avatarImg} alt="User Avatar" />
-            <AvatarFallback>ZH</AvatarFallback>
-          </Avatar>
-          <span className="text-xs font-medium text-slate-900">zzzdn.hadi</span>
-        </div>
+        <ProfileDropdown />
       </div>
     </nav>
   );
@@ -189,9 +229,11 @@ export default function MyProjectsPage() {
               Manage your educational games
             </Typography>
           </div>
-          <Button>
-            <img src={iconPlus} alt="" className="w-5 h-5 mr-2" />
-            New Game
+          <Button asChild>
+            <a href="/create-projects" className="flex items-center">
+              <img src={iconPlus} alt="" className="w-5 h-5 mr-2" />
+              New Game
+            </a>
           </Button>
         </div>
 
