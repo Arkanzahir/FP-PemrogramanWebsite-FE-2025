@@ -1,61 +1,113 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import api from "@/api/axios";
-import { User } from "lucide-react";
+import { User, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/ui/typography";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import Navbar from "@/components/ui/layout/Navbar";
 import thumbnailPlaceholder from "../assets/images/thumbnail-placeholder.png";
 import iconSearch from "../assets/images/icon-search.svg";
 import iconHeart from "../assets/images/icon-heart.svg";
+import iconHeartSolid from "../assets/images/icon-heart-solid.svg";
 import iconPlay from "../assets/images/icon-play.svg";
 import iconVector from "../assets/images/icon-vector.svg";
+
+type GameTemplate = {
+  id: string;
+  slug: string;
+  name: string;
+  logo: string;
+  description: string;
+  is_time_limit_based: boolean;
+  is_life_based: boolean;
+};
 
 type Game = {
   id: string;
   name: string;
   description: string;
   thumbnail_image: string | null;
-  is_published: boolean;
   game_template: string;
-  like_count: number;
-  play_count: number;
+  total_liked: number;
+  total_played: number;
+  creator_id: string;
   creator_name: string;
-  is_liked: boolean;
+  is_liked?: boolean;
 };
 
 export default function HomePage() {
   const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [gameTemplates, setGameTemplates] = useState<GameTemplate[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"latest" | "popular" | "most_liked">(
-    "latest",
-  );
+
+  const [orderByCreatedAt, setOrderByCreatedAt] = useState<
+    "asc" | "desc" | null
+  >("desc");
+  const [orderByLikeAmount, setOrderByLikeAmount] = useState<
+    "asc" | "desc" | null
+  >(null);
+  const [orderByPlayAmount, setOrderByPlayAmount] = useState<
+    "asc" | "desc" | null
+  >(null);
+  const [orderByName, setOrderByName] = useState<"asc" | "desc" | null>(null);
+  const [gameTypeSlug, setGameTypeSlug] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchGameTemplates = async () => {
+      try {
+        const response = await api.get("/api/game/template");
+        setGameTemplates(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch game templates:", err);
+      }
+    };
+    fetchGameTemplates();
+  }, []);
 
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        setLoading(true);
-        const response = await api.get("/api/game/");
+        setError(null);
+
+        const params = new URLSearchParams();
+        if (searchQuery) params.append("search", searchQuery);
+        if (orderByCreatedAt)
+          params.append("orderByCreatedAt", orderByCreatedAt);
+        if (orderByLikeAmount)
+          params.append("orderByLikeAmount", orderByLikeAmount);
+        if (orderByPlayAmount)
+          params.append("orderByPlayAmount", orderByPlayAmount);
+        if (orderByName) params.append("orderByName", orderByName);
+        if (gameTypeSlug) params.append("gameTypeSlug", gameTypeSlug);
+
+        const queryString = params.toString();
+        const url = queryString ? `/api/game?${queryString}` : "/api/game";
+
+        const response = await api.get(url);
         console.log("Fetched games data:", response.data);
+
         setGames(
           response.data.data.map(
-            (g: Partial<Game>) =>
+            (
+              g: Game, // PERBAIKAN: Menggunakan tipe Game, bukan any
+            ) =>
               ({
                 ...g,
-                like_count: g.like_count || 0,
-                play_count: g.play_count || 0,
-                is_liked: g.is_liked || false,
-                id: g.id || "",
-                name: g.name || "Untitled",
-                description: g.description || "",
-                thumbnail_image: g.thumbnail_image || null,
-                is_published: g.is_published || false,
-                game_template: g.game_template || "quiz",
-                creator_name: g.creator_name || "Unknown",
+                total_liked: g.total_liked || 0,
+                total_played: g.total_played || 0,
+                is_liked: false,
               }) as Game,
           ),
         );
@@ -63,27 +115,21 @@ export default function HomePage() {
         setError("Failed to fetch games. Please try again later.");
         console.error("Fetch error:", err);
       } finally {
-        setLoading(false);
+        if (initialLoading) {
+          setInitialLoading(false);
+        }
       }
     };
     fetchGames();
-  }, []);
-
-  const filteredAndSortedGames = useMemo(() => {
-    return games
-      .filter((game) =>
-        game.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-      .sort((a, b) => {
-        if (sortBy === "popular") {
-          return b.play_count - a.play_count;
-        }
-        if (sortBy === "most_liked") {
-          return b.like_count - a.like_count;
-        }
-        return 0;
-      });
-  }, [games, searchQuery, sortBy]);
+  }, [
+    searchQuery,
+    orderByCreatedAt,
+    orderByLikeAmount,
+    orderByPlayAmount,
+    orderByName,
+    gameTypeSlug,
+    initialLoading,
+  ]);
 
   const handleLike = async (e: React.MouseEvent, gameId: string) => {
     e.stopPropagation();
@@ -100,9 +146,9 @@ export default function HomePage() {
             return {
               ...game,
               is_liked: newIsLiked,
-              like_count: newIsLiked
-                ? game.like_count + 1
-                : game.like_count - 1,
+              total_liked: newIsLiked
+                ? game.total_liked + 1
+                : game.total_liked - 1,
             };
           }
           return game;
@@ -122,9 +168,9 @@ export default function HomePage() {
             return {
               ...game,
               is_liked: !newIsLiked,
-              like_count: !newIsLiked
-                ? game.like_count + 1
-                : game.like_count - 1,
+              total_liked: !newIsLiked
+                ? game.total_liked + 1
+                : game.total_liked - 1,
             };
           }
           return game;
@@ -182,29 +228,19 @@ export default function HomePage() {
 
             <div className="flex items-center gap-3">
               <div
-                className="flex items-center gap-1 cursor-pointer hover:text-red-500 transition-colors"
+                className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={(e) => handleLike(e, game.id)}
               >
                 <img
-                  src={iconHeart}
+                  src={game.is_liked ? iconHeartSolid : iconHeart}
                   alt="Likes"
-                  className={`w-3.5 h-3.5 ${game.is_liked ? "filter-red" : ""}`}
-                  style={
-                    game.is_liked
-                      ? {
-                          filter:
-                            "invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)",
-                        }
-                      : {}
-                  }
+                  className="w-3.5 h-3.5"
                 />
-                <span className={game.is_liked ? "text-red-500" : ""}>
-                  {game.like_count}
-                </span>
+                <span>{game.total_liked}</span>
               </div>
               <div className="flex items-center gap-1">
                 <img src={iconPlay} alt="Plays" className="w-3.5 h-3.5" />
-                <span>{game.play_count} plays</span>
+                <span>{game.total_played} plays</span>
               </div>
             </div>
           </div>
@@ -213,7 +249,7 @@ export default function HomePage() {
     );
   };
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="w-full h-screen flex justify-center items-center">
         <Typography variant="h3">Loading...</Typography>
@@ -261,52 +297,126 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-2">
-            <Button
-              variant={sortBy === "latest" ? "default" : "outline"}
-              className={
-                sortBy === "latest"
-                  ? "bg-blue-500 hover:bg-blue-600 text-white"
-                  : "bg-white"
-              }
-              onClick={() => setSortBy("latest")}
-            >
-              Latest
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="bg-white">
+                  Latest <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOrderByCreatedAt("desc");
+                    setOrderByLikeAmount(null);
+                    setOrderByPlayAmount(null);
+                  }}
+                >
+                  Newest First
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOrderByCreatedAt("asc");
+                    setOrderByLikeAmount(null);
+                    setOrderByPlayAmount(null);
+                  }}
+                >
+                  Oldest First
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <Button
-              variant={sortBy === "popular" ? "default" : "outline"}
-              className={
-                sortBy === "popular"
-                  ? "bg-blue-500 hover:bg-blue-600 text-white"
-                  : "bg-white"
-              }
-              onClick={() => setSortBy("popular")}
-            >
-              Popular
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="bg-white">
+                  Popular <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Sort by Likes</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOrderByLikeAmount("desc");
+                    setOrderByCreatedAt(null);
+                    setOrderByPlayAmount(null);
+                  }}
+                >
+                  Most Liked
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOrderByLikeAmount("asc");
+                    setOrderByCreatedAt(null);
+                    setOrderByPlayAmount(null);
+                  }}
+                >
+                  Least Liked
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Sort by Plays</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOrderByPlayAmount("desc");
+                    setOrderByCreatedAt(null);
+                    setOrderByLikeAmount(null);
+                  }}
+                >
+                  Most Played
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOrderByPlayAmount("asc");
+                    setOrderByCreatedAt(null);
+                    setOrderByLikeAmount(null);
+                  }}
+                >
+                  Least Played
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <Button
-              variant={sortBy === "most_liked" ? "default" : "outline"}
-              size="icon"
-              className={
-                sortBy === "most_liked"
-                  ? "bg-blue-500 hover:bg-blue-600 text-white w-10 px-0"
-                  : "bg-white w-10 px-0"
-              }
-              onClick={() =>
-                setSortBy(sortBy === "most_liked" ? "latest" : "most_liked")
-              }
-            >
-              <img src={iconVector} alt="Filter" className="w-4 h-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-white w-10 px-0"
+                >
+                  <img src={iconVector} alt="Filter" className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Sort by Name</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setOrderByName("asc")}>
+                  A to Z
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOrderByName("desc")}>
+                  Z to A
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOrderByName(null)}>
+                  Clear Name Sort
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setGameTypeSlug(null)}>
+                  All Types
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {gameTemplates.map((template) => (
+                  <DropdownMenuItem
+                    key={template.id}
+                    onClick={() => setGameTypeSlug(template.slug)}
+                  >
+                    {template.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedGames.length > 0 ? (
-            filteredAndSortedGames.map((game) => (
-              <GameCard key={game.id} game={game} />
-            ))
+          {games.length > 0 ? (
+            games.map((game: Game) => <GameCard key={game.id} game={game} />)
           ) : (
             <div className="col-span-full text-center py-12">
               <Typography variant="muted">
