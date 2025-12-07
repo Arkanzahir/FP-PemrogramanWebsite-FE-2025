@@ -130,7 +130,7 @@ function EditMazeChase() {
           questionImages: q.question_image
             ? q.question_image.startsWith("http")
               ? q.question_image
-              : `${import.meta.env.VITE_API_URL}/${q.question_image}`
+              : `${q.question_image}`
             : null,
           answers: (q.answers || []).map((a: ApiAnswer) => ({
             text: a.answer_text ?? "",
@@ -556,15 +556,15 @@ function EditMazeChase() {
       </nav>
 
       {/* Main Content */}
-      <div className="w-full py-12 px-4 md:px-8 flex justify-center font-body">
-        <div className="max-w-5xl w-full">
+      <div className="w-full py-8 sm:py-12 px-3 sm:px-6 md:px-8 flex justify-center font-body">
+        <div className="w-full max-w-5xl">
           {/* Hero Card dengan Glass Effect */}
-          <div className="backdrop-blur-2xl bg-black/60 rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-10 md:p-14 mb-8">
-            <div className="text-center space-y-6">
-              <h1 className="font-gothic text-5xl md:text-7xl text-[#c9a961] tracking-wider mb-4">
+          <div className="backdrop-blur-2xl bg-black/60 rounded-2xl sm:rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-6 sm:p-10 md:p-14 mb-6 sm:mb-8">
+            <div className="text-center space-y-4 sm:space-y-6">
+              <h1 className="font-gothic text-4xl sm:text-5xl md:text-7xl text-[#c9a961] tracking-wider mb-2 sm:mb-4">
                 Edit Your Maze
               </h1>
-              <p className="text-gray-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+              <p className="text-gray-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto px-2">
                 Refine your maze chase experience with updated challenges and
                 mysterious pathways
               </p>
@@ -572,13 +572,13 @@ function EditMazeChase() {
           </div>
 
           {/* Form Section */}
-          <div className="backdrop-blur-2xl bg-black/60 rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-10 md:p-14 space-y-10">
+          <div className="backdrop-blur-2xl bg-black/60 rounded-2xl sm:rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-6 sm:p-10 md:p-14 space-y-8 sm:space-y-10">
             <div>
-              <h2 className="font-gothic text-3xl text-[#c9a961] mb-8 tracking-wide">
+              <h2 className="font-gothic text-2xl sm:text-3xl text-[#c9a961] mb-6 sm:mb-8 tracking-wide">
                 Game Configuration
               </h2>
 
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 <div className="space-y-3">
                   <Label className="text-gray-400 font-medium text-base">
                     Game Title <span className="text-[#c9a961]">*</span>
@@ -618,7 +618,7 @@ function EditMazeChase() {
                   <Label className="text-gray-400 font-medium text-base">
                     Select Maze Map <span className="text-[#c9a961]">*</span>
                   </Label>
-                  <div className="relative">
+                  <div className="space-y-3">
                     <button
                       type="button"
                       onClick={() => setShowMapDropdown(!showMapDropdown)}
@@ -637,8 +637,8 @@ function EditMazeChase() {
                     </button>
 
                     {showMapDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-2 backdrop-blur-2xl bg-black/80 border border-gray-700/50 rounded-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.9)] z-20 overflow-hidden">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-5">
+                      <div className="backdrop-blur-2xl bg-black/80 border border-gray-700/50 rounded-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.9)] overflow-hidden">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-4 sm:p-5">
                           {AVAILABLE_MAPS.map((map) => (
                             <button
                               key={map.id}
@@ -657,27 +657,18 @@ function EditMazeChase() {
                                 <img
                                   src={map.image}
                                   alt={map.name}
-                                  className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110 opacity-80"
+                                  className="w-full h-24 sm:h-28 object-cover transition-transform duration-300 group-hover:scale-110 opacity-80"
                                 />
                                 {mapId === map.id && (
                                   <div className="absolute inset-0 bg-[#c9a961]/20 flex items-center justify-center">
                                     <div className="bg-black/70 rounded-full p-2 backdrop-blur-sm">
                                       <Sparkles
-                                        size={20}
+                                        size={16}
                                         className="text-[#c9a961]"
                                       />
                                     </div>
                                   </div>
                                 )}
-                              </div>
-                              <div
-                                className={`p-3 text-center font-medium text-sm transition-colors ${
-                                  mapId === map.id
-                                    ? "bg-[#c9a961]/20 text-[#c9a961]"
-                                    : "bg-black/40 text-gray-400 group-hover:bg-[#c9a961]/10"
-                                }`}
-                              >
-                                {map.name}
                               </div>
                             </button>
                           ))}
@@ -693,9 +684,26 @@ function EditMazeChase() {
                 </div>
 
                 <div className="space-y-3">
+                  {thumbnailPreview && (
+                    <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-700/50 bg-black/50">
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => {
+                          setThumbnail(null);
+                          setThumbnailPreview(null);
+                        }}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
                   <Dropzone
                     required
-                    defaultValue={thumbnailPreview ?? undefined}
                     label="Thumbnail Image"
                     allowedTypes={["image/png", "image/jpeg"]}
                     maxSize={2 * 1024 * 1024}
@@ -712,7 +720,7 @@ function EditMazeChase() {
           </div>
 
           {/* Questions Section Header */}
-          <div className="flex justify-between items-center mt-10 mb-6 backdrop-blur-xl bg-black/50 rounded-2xl p-6 border border-gray-700/30">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-8 sm:mt-10 mb-6 backdrop-blur-xl bg-black/50 rounded-2xl p-4 sm:p-6 border border-gray-700/30">
             <div className="flex items-center gap-4">
               <div className="bg-gradient-to-br from-[#c9a961] to-[#a08347] p-3 rounded-xl shadow-lg">
                 <Typography
@@ -723,27 +731,29 @@ function EditMazeChase() {
                 </Typography>
               </div>
               <div>
-                <h3 className="font-gothic text-2xl text-[#c9a961] tracking-wide">
+                <h3 className="font-gothic text-xl sm:text-2xl text-[#c9a961] tracking-wide">
                   Challenges
                 </h3>
-                <p className="text-gray-500 text-sm">Maximum 10 questions</p>
+                <p className="text-gray-500 text-xs sm:text-sm">
+                  Maximum 10 questions
+                </p>
               </div>
             </div>
             <Button
               onClick={addQuestion}
               disabled={questions.length >= 10}
-              className="bg-gradient-to-r from-[#c9a961] to-[#a08347] hover:from-[#a08347] hover:to-[#c9a961] text-gray-900 font-semibold px-6 py-3 rounded-xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto bg-gradient-to-r from-[#c9a961] to-[#a08347] hover:from-[#a08347] hover:to-[#c9a961] text-gray-900 font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              <Plus size={18} className="mr-2" /> Add Challenge
+              <Plus size={16} className="mr-1 sm:mr-2" /> Add Challenge
             </Button>
           </div>
 
           {/* Questions Cards */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {questions.map((q, qIndex) => (
               <div
                 key={qIndex}
-                className="backdrop-blur-2xl bg-black/60 rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-8 space-y-6 hover:border-[#c9a961]/30 transition-all duration-300"
+                className="backdrop-blur-2xl bg-black/60 rounded-2xl sm:rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-5 sm:p-8 space-y-4 sm:space-y-6 hover:border-[#c9a961]/30 transition-all duration-300"
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
@@ -850,22 +860,22 @@ function EditMazeChase() {
           </div>
 
           {/* Settings */}
-          <div className="backdrop-blur-2xl bg-black/60 rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-10 space-y-8 mt-8">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="backdrop-blur-2xl bg-black/60 rounded-2xl sm:rounded-3xl border border-gray-700/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] p-6 sm:p-10 space-y-6 sm:space-y-8 mt-6 sm:mt-8">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <div className="bg-gradient-to-br from-[#c9a961] to-[#a08347] p-2.5 rounded-xl shadow-lg">
                 <Typography
                   variant="p"
-                  className="text-gray-900 font-bold text-lg"
+                  className="text-gray-900 font-bold text-base sm:text-lg"
                 >
                   ⚙️
                 </Typography>
               </div>
-              <h3 className="font-gothic text-3xl text-[#c9a961] tracking-wide">
+              <h3 className="font-gothic text-2xl sm:text-3xl text-[#c9a961] tracking-wide">
                 Game Settings
               </h3>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div className="flex justify-between items-center p-5 bg-black/40 rounded-2xl hover:bg-black/50 transition-all border border-gray-700/30">
                 <div>
                   <Label className="text-gray-300 font-semibold text-base">
@@ -939,14 +949,14 @@ function EditMazeChase() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-end mt-10">
+          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 justify-center sm:justify-end mt-8 sm:mt-10">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   size="lg"
-                  className="border-2 border-gray-700 text-gray-400 bg-black/50 hover:bg-black/70 hover:text-gray-300 backdrop-blur-xl transition-all rounded-xl font-semibold px-8 py-6"
+                  className="w-full sm:w-auto border-2 border-gray-700 text-gray-400 bg-black/50 hover:bg-black/70 hover:text-gray-300 backdrop-blur-xl transition-all rounded-xl font-semibold px-6 sm:px-8 py-3 sm:py-6 text-sm sm:text-base"
                 >
-                  <X size={18} className="mr-2" /> Cancel
+                  <X size={16} className="mr-1 sm:mr-2" /> Cancel
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent className="rounded-3xl backdrop-blur-2xl bg-black/80 border-2 border-gray-700/50">
@@ -976,17 +986,17 @@ function EditMazeChase() {
             <Button
               size="lg"
               onClick={handleSaveDraft}
-              className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-8 py-6 rounded-xl transition-all duration-300 border border-gray-600"
+              className="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 sm:px-8 py-3 sm:py-6 rounded-xl transition-all duration-300 border border-gray-600 text-sm sm:text-base"
             >
-              <SaveIcon size={18} className="mr-2" /> Save Draft
+              <SaveIcon size={16} className="mr-1 sm:mr-2" /> Save Draft
             </Button>
 
             <Button
               size="lg"
               onClick={handleSubmit}
-              className="bg-gradient-to-r from-[#c9a961] to-[#a08347] hover:from-[#a08347] hover:to-[#c9a961] text-gray-900 font-bold px-10 py-6 rounded-xl transition-all duration-300 shadow-[0_0_30px_rgba(201,169,97,0.3)] hover:shadow-[0_0_40px_rgba(201,169,97,0.5)] transform hover:scale-105"
+              className="w-full sm:w-auto bg-gradient-to-r from-[#c9a961] to-[#a08347] hover:from-[#a08347] hover:to-[#c9a961] text-gray-900 font-bold px-8 sm:px-10 py-3 sm:py-6 rounded-xl transition-all duration-300 shadow-[0_0_30px_rgba(201,169,97,0.3)] hover:shadow-[0_0_40px_rgba(201,169,97,0.5)] transform hover:scale-105 text-sm sm:text-base"
             >
-              <SaveIcon size={18} className="mr-2" /> Update Maze
+              <SaveIcon size={16} className="mr-1 sm:mr-2" /> Update Maze
             </Button>
           </div>
         </div>
