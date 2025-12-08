@@ -98,7 +98,7 @@ const Game = () => {
               </div>
             </div>
             {/* Maze di tengah */}
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 h-5 flex items-center justify-center">
               <Maps mapId={1} controlDirection={moveDir} />
             </div>            
 
