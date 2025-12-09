@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import api from "@/api/axios";
 
 // Game Item Images
 import catImage from "./images/cat_image_1765100975047.png";
@@ -783,22 +784,26 @@ const PairOrNoPairGame = () => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/game/game-type/pair-or-no-pair/${gameId}/play/public`,
+        console.log("[DEBUG] Fetching game data using axios...");
+        const response = await api.get(
+          `/api/game/game-type/pair-or-no-pair/${gameId}/play/public`,
         );
-        const result = await response.json();
+        console.log("[DEBUG] API Response:", response.data);
 
-        // API returns: { success: true, data: { items: [...] } }
-        const gameData = result.data;
+        // Axios response is already parsed, data is in response.data.data
+        const gameData = response.data.data;
+        console.log("[DEBUG] gameData:", gameData);
+        console.log("[DEBUG] items:", gameData?.items);
+
         if (gameData?.items && gameData.items.length > 0) {
+          console.log("[DEBUG] Using API items");
           setItems(gameData.items);
         } else {
-          // API returned empty items, use fallback
-          console.warn("API returned empty items, using fallback data");
+          console.warn("[DEBUG] API returned empty items, using fallback data");
           setItems(fallbackItems);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("[DEBUG] Error fetching data:", error);
         setItems(fallbackItems);
       } finally {
         setIsLoading(false);
@@ -855,6 +860,25 @@ const PairOrNoPairGame = () => {
     setScore(0); // Reset score
     setMaxCombo(0); // Reset max combo
 
+    // Safety check: ensure we have items to play with
+    let gameItems = items;
+    if (!gameItems || gameItems.length === 0) {
+      console.warn("Items empty at start, using fallback");
+      gameItems = [
+        { id: "1", left_content: "Cat", right_content: catImage },
+        { id: "2", left_content: "Dog", right_content: dogImage },
+        { id: "3", left_content: "Apple", right_content: appleImage },
+        { id: "4", left_content: "Banana", right_content: bananaImage },
+        { id: "5", left_content: "Book", right_content: bookImage },
+        { id: "6", left_content: "Camera", right_content: cameraImage },
+        { id: "7", left_content: "Bird", right_content: birdImage },
+        { id: "8", left_content: "Strawberry", right_content: strawberryImage },
+        { id: "9", left_content: "Watch", right_content: watchImage },
+        { id: "10", left_content: "Elephant", right_content: elephantImage },
+      ];
+      setItems(gameItems);
+    }
+
     // Set initial timer based on difficulty
     // Easy: starts at 0 (counts up), Normal: 120s countdown, Hard: 45s countdown
     if (difficulty === "easy") {
@@ -869,11 +893,11 @@ const PairOrNoPairGame = () => {
     // This ensures audio works even if autoplay was blocked
     playIntroBGM();
 
-    const leftCards: StackCard[] = items.map((item) => ({
+    const leftCards: StackCard[] = gameItems.map((item) => ({
       id: item.id,
       content: item.left_content,
     }));
-    const rightCards: StackCard[] = items.map((item) => ({
+    const rightCards: StackCard[] = gameItems.map((item) => ({
       id: item.id,
       content: item.right_content,
     }));
