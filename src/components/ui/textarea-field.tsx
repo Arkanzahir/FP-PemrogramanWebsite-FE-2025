@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-interface TextareaFieldProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   required?: boolean;
 }
