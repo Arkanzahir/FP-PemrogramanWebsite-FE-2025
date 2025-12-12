@@ -39,7 +39,7 @@ body {
 
 #status {
 	background-color: #242424;
-	display: none !important; /* Hidden: tidak tampil loading screen */
+	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
@@ -50,7 +50,6 @@ body {
 	max-height: 100%;
 	max-width: 100%;
 	margin: auto;
-	display: none !important; /* Hidden: tidak tampil splash image */
 }
 
 #status-splash.show-image--false {
@@ -68,7 +67,7 @@ body {
 }
 
 #status-progress, #status-notice {
-	display: none !important; /* Hidden: tidak tampil progress bar */
+	display: none;
 }
 
 #status-progress {
@@ -112,7 +111,7 @@ body {
 
 		<script src="FP-Pemweb.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"FP-Pemweb","experimentalVK":false,"fileSizes":{"FP-Pemweb.pck":15859972,"FP-Pemweb.wasm":36145869},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"FP-Pemweb","experimentalVK":false,"fileSizes":{"FP-Pemweb.pck":15836936,"FP-Pemweb.wasm":36145869},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
